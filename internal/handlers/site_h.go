@@ -1,14 +1,17 @@
 package handlers
 
 import (
-	"net/http"
-	"github.com/gin-gonic/gin"
-	"gocheck/internal/models"
 	"gocheck/internal/database"
+	"gocheck/internal/models"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetSites(c *gin.Context) {
-	rows, err := database.DB.Query("SELECT id, name, url, interval FROM sites")
+	userID, _ := c.Get("userID")
+
+	rows, err := database.DB.Query("SELECT id, name, url, interval FROM sites WHERE user_id=$1", userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Błąd pobierania z bazy"})
 		return
@@ -30,6 +33,8 @@ func GetSites(c *gin.Context) {
 }
 
 func CreateSite(c *gin.Context) {
+	userID, _ := c.Get("userID")
+
 	var newSite models.Site
 	if err := c.BindJSON(&newSite); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Zły format JSON"})
@@ -37,8 +42,8 @@ func CreateSite(c *gin.Context) {
 	}
 
 	err := database.DB.QueryRow(
-		"INSERT INTO sites (name, url, interval) VALUES ($1, $2, $3) RETURNING id",
-		newSite.Name, newSite.URL, newSite.Interval,
+		"INSERT INTO sites (user_id, name, url, interval) VALUES ($1, $2, $3, $4) RETURNING id",
+		userID, newSite.Name, newSite.URL, newSite.Interval,
 	).Scan(&newSite.ID)
 
 	if err != nil {
@@ -51,7 +56,7 @@ func CreateSite(c *gin.Context) {
 
 func DeleteSite(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	_, err := database.DB.Exec("DELETE FROM sites WHERE id=$1", id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Błąd przy usuwaniu"})
