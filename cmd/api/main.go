@@ -26,6 +26,9 @@ func main() {
 		protected.GET("/sites", handlers.GetSites)
 		protected.POST("/sites", handlers.CreateSite)
 		protected.DELETE("/sites/:id", handlers.DeleteSite)
+
+		protected.GET("/export", handlers.ExportCSV)
+		protected.POST("/import", handlers.ImportCSV)
 	}
 
 	router.Run("localhost:8080")
