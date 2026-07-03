@@ -5,10 +5,13 @@ import (
 	"gocheck/internal/handlers"
 	"gocheck/internal/database"
 	"gocheck/internal/middleware"
+	"gocheck/internal/monitor"
 )
 
 func main() {
 	database.Connect()
+
+	go monitor.Start()
 
 	router := gin.Default()
 

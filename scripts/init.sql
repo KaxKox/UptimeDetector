@@ -12,3 +12,11 @@ CREATE TABLE IF NOT EXISTS sites (
     url VARCHAR(255) NOT NULL,
     interval INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS checks (
+    id SERIAL PRIMARY KEY,
+    site_id INTEGER REFERENCES sites(id) ON DELETE CASCADE,
+    status_code INTEGER NOT NULL,
+    response_time_ms INTEGER NOT NULL,
+    checked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
