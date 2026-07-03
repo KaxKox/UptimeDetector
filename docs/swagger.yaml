@@ -4,14 +4,99 @@ info:
   description: API do systemu monitorowania dostępności stron internetowych.
   version: 1.0.0
 paths:
+  /api/register:
+    post:
+      summary: Rejestracja nowego użytkownika
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: {type: string}
+                password: {type: string}
+      responses:
+        '201':
+          description: Zarejestrowano pomyślnie
+        '500':
+          description: Użytkownik już istnieje lub błąd bazy
+
+  /api/login:
+    post:
+      summary: Logowanie użytkownika
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: {type: string}
+                password: {type: string}
+      responses:
+        '200':
+          description: Zwraca token JWT
+        '401':
+          description: Nieprawidłowy login lub hasło
+
+  /ws:
+    get:
+      summary: Kanał WebSocket z danymi live (dashboard)
+      description: >
+        Endpoint do podłączenia przez WebSocket (protokół ws://).
+        Co 5 sekund serwer wysyła listę 5 ostatnich sprawdzeń stron.
+      responses:
+        '101':
+          description: Przełączenie protokołu na WebSocket
+
+  /api/export:
+    get:
+      summary: Eksport historii sprawdzeń do pliku CSV
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Plik CSV z historią sprawdzeń stron użytkownika
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+
+  /api/import:
+    post:
+      summary: Import listy stron z pliku CSV
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Zaimportowano pomyślnie, zwraca liczbę dodanych stron
+        '400':
+          description: Zły format pliku CSV lub brak pliku
+
   /api/sites:
     get:
       summary: Pobierz wszystkie monitorowane strony
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Lista stron pobrana pomyślnie
     post:
       summary: Dodaj nową stronę do monitorowania
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -29,6 +114,8 @@ paths:
   /api/sites/{id}:
     put:
       summary: Zaktualizuj dane monitorowanej strony
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -51,7 +138,9 @@ paths:
         '404':
           description: Nie znaleziono strony o podanym ID
     delete:
-      summary: Usuń stronę z monitorowania
+      summary: Usuń stronę z monitoringu
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -63,3 +152,10 @@ paths:
           description: Strona usunięta pomyślnie
         '404':
           description: Nie znaleziono strony o podanym ID
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
