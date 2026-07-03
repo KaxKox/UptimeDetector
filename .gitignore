@@ -1,0 +1,8 @@
+node_modules/
+dist/
+build/
+.npm/
+.env
+*.pem
+cert.pem
+key.pem
