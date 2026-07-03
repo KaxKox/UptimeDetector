@@ -18,6 +18,8 @@ func main() {
 	router.POST("/api/register", handlers.Register)
 	router.POST("/api/login", handlers.Login)
 
+	router.GET("/ws", handlers.WsHandler)
+
 	protected := router.Group("/api")
 	protected.Use(middleware.AuthRequired())
 	{
