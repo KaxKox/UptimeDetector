@@ -1,0 +1,65 @@
+openapi: 3.0.0
+info:
+  title: Uptime Monitor API (GoCheck)
+  description: API do systemu monitorowania dostępności stron internetowych.
+  version: 1.0.0
+paths:
+  /api/sites:
+    get:
+      summary: Pobierz wszystkie monitorowane strony
+      responses:
+        '200':
+          description: Lista stron pobrana pomyślnie
+    post:
+      summary: Dodaj nową stronę do monitorowania
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id: {type: string}
+                name: {type: string}
+                url: {type: string}
+                interval: {type: integer}
+      responses:
+        '201':
+          description: Strona została dodana
+  /api/sites/{id}:
+    put:
+      summary: Zaktualizuj dane monitorowanej strony
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: {type: string}
+                url: {type: string}
+                interval: {type: integer}
+      responses:
+        '200':
+          description: Strona zaktualizowana pomyślnie
+        '404':
+          description: Nie znaleziono strony o podanym ID
+    delete:
+      summary: Usuń stronę z monitorowania
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Strona usunięta pomyślnie
+        '404':
+          description: Nie znaleziono strony o podanym ID
